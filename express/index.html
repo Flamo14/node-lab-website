@@ -52,7 +52,7 @@
         <section class="video-signal section-wrap reveal" id="video-signal">
             <div class="section-heading"><div class="section-kicker">[ 03 / Moving image ]</div><h2>Enter the <span>signal</span></h2><p class="heading-aside">A live fragment<br>from the neon grid.</p></div>
             <div class="video-frame">
-                <video id="signal-video" poster="/pictures/neon-concert-future-stockcake.jpg" preload="metadata" loop playsinline aria-label="Neon Circuit live performance">
+                <video id="signal-video" poster="/pictures/neon-concert-future-stockcake.jpg" preload="metadata" autoplay muted loop playsinline aria-label="Neon Circuit live performance">
                     <source src="/video/hailuo-03_Cinematic_cyberpunk_neon_concert_atmosphere_ultra-wide_horizontal_video_for_a_mo-0.mp4" type="video/mp4">
                     Your browser does not support embedded video.
                 </video>
@@ -92,11 +92,22 @@
         const videoPlay = document.querySelector('#video-play');
         const videoMute = document.querySelector('#video-mute');
         const videoStatus = document.querySelector('#video-status');
+        signalVideo.play().catch(() => { videoStatus.textContent = 'STANDBY / PRESS PLAY'; });
         videoPlay.addEventListener('click', () => { if (signalVideo.paused) { signalVideo.play(); } else { signalVideo.pause(); } });
         videoMute.addEventListener('click', () => { signalVideo.muted = !signalVideo.muted; });
         signalVideo.addEventListener('play', () => { videoPlay.innerHTML = 'Pause <span>Ⅱ</span>'; videoStatus.textContent = 'TRANSMISSION LIVE'; });
         signalVideo.addEventListener('pause', () => { videoPlay.innerHTML = 'Play <span>▶</span>'; videoStatus.textContent = 'STANDBY / PRESS PLAY'; });
         signalVideo.addEventListener('volumechange', () => { videoMute.innerHTML = signalVideo.muted ? 'Sound off <span>⊘</span>' : 'Sound on <span>◉</span>'; videoMute.setAttribute('aria-label', signalVideo.muted ? 'Turn sound on' : 'Turn sound off'); });
+        document.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0 || event.isPrimary === false || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const ripple = document.createElement('span');
+            ripple.className = 'click-ripple';
+            ripple.setAttribute('aria-hidden', 'true');
+            ripple.style.left = `${event.clientX}px`;
+            ripple.style.top = `${event.clientY}px`;
+            ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+            document.body.append(ripple);
+        });
         document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !modal.hidden) { modal.hidden = true; document.body.classList.remove('modal-open'); } });
         const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('visible'); }), { threshold: 0.14 });
         document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
